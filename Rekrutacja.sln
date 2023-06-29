@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33424.131
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Functions", "Rekrutacja\Functions.csproj", "{501AC98C-686A-4A3C-B5B8-27E356206F99}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Functions", "Functions", "{1C77E039-F347-43F1-A2D7-A533054C5E17}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Models", "Models", "{B5F675E2-C010-498D-86E4-A5FA0A2FC5F9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Abstractions", "Abstractions", "{9A125F64-C6BB-41BB-9987-DAEC8FC3CDE9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Implementations", "Implementations", "{5B2A7B31-D875-4A5F-9B56-D2CC14D5C75A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Helpers", "Helpers", "{DEC465B4-694E-40D9-A3D9-39E97A5D7C67}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{501AC98C-686A-4A3C-B5B8-27E356206F99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{501AC98C-686A-4A3C-B5B8-27E356206F99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{501AC98C-686A-4A3C-B5B8-27E356206F99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{501AC98C-686A-4A3C-B5B8-27E356206F99}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{501AC98C-686A-4A3C-B5B8-27E356206F99} = {1C77E039-F347-43F1-A2D7-A533054C5E17}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1177AFCB-A9C7-423F-9402-93895481AB71}
+	EndGlobalSection
+EndGlobal
