@@ -16,7 +16,7 @@ public class FaireService : IFaireService
         _client.AddDefaultHeader("X-FAIRE-ACCESS-TOKEN", settings.XFaireAccessToken);
     }
 
-    public async Task<List<Order>> GetOrdersAsync(int limit = 50, int page = 1, DateTimeOffset? lastUpdateTime = new DateTimeOffset?())
+    public async Task<List<FaireOrder>> GetOrdersAsync(int limit = 50, int page = 1, DateTimeOffset? lastUpdateTime = new DateTimeOffset?())
     {
         var request = new RestRequest("orders", Method.Get)
             .AddParameter("limit", limit > 50 ? 50 : limit)

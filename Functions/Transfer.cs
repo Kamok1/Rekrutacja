@@ -1,9 +1,10 @@
+using System.Globalization;
 using Abstractions;
 using Helpers;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Models;
-using Order = Models.Faire.Order;
+using Models.Faire;
 
 namespace Functions;
 public class Transfer
@@ -30,7 +31,7 @@ public class Transfer
     /// <param name="info">Additional information or parameters for the method.</param>
 
     [Function("Transfer")]
-    public async Task Run([TimerTrigger("0 */10 * * * *")] string info)
+    public async Task Run([TimerTrigger("0 */1 * * * *")] string info)
     {
         try
         {
@@ -51,10 +52,12 @@ public class Transfer
         var orders = await _faireService.GetOrdersAsync(50, 1,
             _storageService.Get<DateTimeOffset>("lastUpdatedDate"));
 
-        _storageService.Set("lastUpdatedDate", DateTimeOffset.Parse(orders.Last().UpdatedAt));
+        _storageService.Set("lastUpdatedDate", orders.Last().UpdatedAt);
+        _logger.LogInformation("Retrieved orders from Faire and updated the last updated date in the storage service.");
+
 
         await RemoveOrdersThatAlreadyExistsAsync(orders);
-
+        _logger.LogInformation("Removed existing orders.");
 
         var newOrders = orders.Select(order =>
         {
@@ -66,6 +69,7 @@ public class Transfer
         }).ToList();
 
         newOrders.ForEach(newOrder => _baselinkerService.AddOrderAsync(newOrder));
+        _logger.LogInformation("Added new orders to the Baselinker system.");
     }
 
     /// <summary>
@@ -76,21 +80,35 @@ public class Transfer
     /// </summary>
     /// <param name="orders"></param>
     /// <returns></returns>
-    private async Task RemoveOrdersThatAlreadyExistsAsync(ICollection<Order> orders)
+    private async Task RemoveOrdersThatAlreadyExistsAsync(ICollection<FaireOrder> orders)
     {
-        var updatedOrders = orders.Where(order => order.UpdatedAt != order.CreatedAt).OrderBy(order => order.CreatedAt).ToList();
+        var updatedOrders = orders
+            .Where(order => order.UpdatedAt != order.CreatedAt)
+            .OrderBy(order => order.CreatedAt).ToList();
         var i = 0;
-        if (i < updatedOrders.Count)
+        var minDate = updatedOrders.First().CreatedAt;
+        var numberOfUpdatedOrders = updatedOrders.Count;
+        while (i < numberOfUpdatedOrders)
         {
-            var ordersAdded = await _baselinkerService.GetOrdersAsync(DateTimeOffset.Parse(updatedOrders.First().CreatedAt));
-            var lastDate = ordersAdded.Last().DateAdd;
-            var updatedOrdersInRange = updatedOrders.Where(order =>
-                DateTimeOffset.Parse(order.CreatedAt) < DateTimeOffset.Parse(lastDate));
+            // Retrieve orders added after the minimum date
+            var BaselinkerOffers = await _baselinkerService.GetOrdersAsync(minDate);
+            var lastDate = BaselinkerOffers.Last().DateAdd;
 
-            foreach (var order in updatedOrdersInRange)
+            // Filter updated orders within the range of minimum and last date
+            var updatedOrdersInRange = updatedOrders.Where(updatedOrder =>
+                updatedOrder.CreatedAt < lastDate);
+
+            // Add one millisecond to the minimum date avoid duplicates
+            minDate = lastDate.AddMilliseconds(1);
+
+            foreach (var updatedOrderInRange in updatedOrdersInRange)
             {
-                if (ordersAdded.Any(addedOrder => addedOrder.ExtraField1 == order.Id))
-                    orders.Remove(order);
+                // Remove the processed updated order from the list
+                updatedOrders.Remove(updatedOrderInRange);
+
+                // Check if the updated order already exists in the Baselinker's System
+                if (BaselinkerOffers.Any(addedOrder => addedOrder.ExtraField1 == updatedOrderInRange.Id))
+                    orders.Remove(updatedOrderInRange);
                 i++;
             }
         }

@@ -5,12 +5,12 @@ namespace Helpers
 {
     public static class Mapper
     {
-        public static NewOrder ToBaselinkerNewOrder(Order order)
+        public static NewOrder ToBaselinkerNewOrder(FaireOrder order)
         {
             var newOrder = new NewOrder
             {
 
-                DateAdd = DateTimeOffset.Parse(order.CreatedAt).ToUnixTimeSeconds().ToString(),
+                DateAdd = order.CreatedAt.ToUnixTimeSeconds().ToString(),
 
                 DeliveryAddress = order.Address.Address1 + order.Address.Address2,
                 Phone = order.Address.PhoneNumber,

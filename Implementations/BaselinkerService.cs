@@ -29,18 +29,22 @@ public class BaselinkerService : IBaselinkerService
         var request = new RestRequest("", Method.Post);
         request.AddParameter("application/x-www-form-urlencoded", Helpers.Helpers.QueryString(apiParams), ParameterType.RequestBody);
 
-        var response = await _client.ExecuteAsync(request);
-        if (response.IsSuccessful == false)
+        var response = await _client.ExecuteAsync<NewOrderResponse>(request);
+        if (response.IsSuccessful == false || response.Content == null)
+            throw new Exception("Error occurred while adding orders!");
+
+        var status  = JsonConvert.DeserializeObject<NewOrderResponse>(response.Content)?.Status;
+        if(status == "ERROR")
             throw new Exception("Error occurred while adding orders!");
     }
 
-    public async Task<List<Order>?> GetOrdersAsync(DateTimeOffset dateFrom)
+    public async Task<List<BaselinkerOrder>?> GetOrdersAsync(DateTimeOffset dateFrom)
     {
         return await GetOrdersAsync(dateFrom, _settings.DefaultStatusId, _settings.DefaultSourceId);
     }
-    private async Task<List<Order>?> GetOrdersAsync(DateTimeOffset dateFrom, int statusId, int customSourceId)
+    private async Task<List<BaselinkerOrder>?> GetOrdersAsync(DateTimeOffset dateFrom, int statusId, int customSourceId)
     {
-        List<Order> orders = new();
+        List<BaselinkerOrder> orders = new();
         var parametersDict = new Dictionary<string, object>
         {
             { "filter_order_source_id", customSourceId },

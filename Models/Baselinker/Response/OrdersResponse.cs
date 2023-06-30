@@ -8,5 +8,5 @@ public record OrdersResponse
     public string Status { get; set; }
 
     [JsonProperty("orders")]
-    public List<Order> Orders { get; set; }
+    public List<BaselinkerOrder> Orders { get; set; }
 }

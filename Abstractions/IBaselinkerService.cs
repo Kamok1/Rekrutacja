@@ -6,5 +6,5 @@ namespace Abstractions;
 public interface IBaselinkerService
 {
     Task AddOrderAsync(NewOrder newOrder);
-    Task<List<Order>> GetOrdersAsync(DateTimeOffset dateFrom);
+    Task<List<BaselinkerOrder>> GetOrdersAsync(DateTimeOffset dateFrom);
 }

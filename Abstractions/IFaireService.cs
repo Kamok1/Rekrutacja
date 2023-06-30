@@ -10,5 +10,5 @@ public interface IFaireService
     /// <param name="page">The page number of the results.</param>
     /// <param name="lastUpdateTime">Returns only orders updated after this date.</param>
     /// <returns>A list of orders.</returns>
-    Task<List<Order>> GetOrdersAsync(int limit = 50, int page = 1, DateTimeOffset? lastUpdateTime = new DateTimeOffset?());
+    Task<List<FaireOrder>> GetOrdersAsync(int limit = 50, int page = 1, DateTimeOffset? lastUpdateTime = new DateTimeOffset?());
 }

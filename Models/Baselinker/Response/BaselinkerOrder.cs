@@ -2,7 +2,7 @@
 
 namespace Models.Baselinker.Response;
 
-public record Order
+public record BaselinkerOrder
 {
     [JsonProperty("order_id")]
     public string OrderId { get; set; }
@@ -26,13 +26,22 @@ public record Order
     public string OrderStatusId { get; set; }
 
     [JsonProperty("date_add")]
-    public string DateAdd { get; set; }
+    public string DateAddString { get; set; }
+
+    [JsonIgnore]
+    public DateTimeOffset DateAdd => DateTimeOffset.FromUnixTimeSeconds(long.Parse(DateAddString));
 
     [JsonProperty("date_confirmed")]
-    public string DateConfirmed { get; set; }
+    public string DateConfirmedString { get; set; }
+
+    [JsonIgnore]
+    public DateTimeOffset DateConfirmed => DateTimeOffset.FromUnixTimeSeconds(long.Parse(DateAddString));
 
     [JsonProperty("date_in_status")]
-    public string DateInStatus { get; set; }
+    public string DateInStatusString { get; set; }
+
+    [JsonIgnore]
+    public DateTimeOffset DateInStatus => DateTimeOffset.FromUnixTimeSeconds(long.Parse(DateAddString));
 
     [JsonProperty("user_login")]
     public string UserLogin { get; set; }
