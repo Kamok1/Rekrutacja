@@ -3,8 +3,6 @@ using Models;
 using Models.Faire;
 using Newtonsoft.Json;
 using RestSharp;
-using System.Xml.Serialization;
-using Helpers;
 
 namespace Implementations;
 
@@ -30,7 +28,7 @@ public class FaireService : IFaireService
             throw new Exception("Failed to retrieve orders from faire!");
 
         var orders = JsonConvert.DeserializeObject<OrdersResponse>(response.Content)?.Orders;
-        if(orders == null || orders.Any() == false)
+        if (orders == null || orders.Any() == false)
             throw new Exception("Failed to retrieve orders from faire!");
 
         return orders!;

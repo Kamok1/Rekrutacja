@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace Models;
+﻿namespace Models;
 
 public record FaireSettings
 {

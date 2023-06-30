@@ -5,7 +5,7 @@ namespace Implementations;
 
 public class XmlService : IStorageService
 {
-    private readonly string _mainFolder = Path.Combine( Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "transfer");
+    private readonly string _mainFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "transfer");
 
     public XmlService()
     {

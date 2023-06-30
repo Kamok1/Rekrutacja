@@ -1,6 +1,5 @@
 ﻿using Models.Baselinker.Request;
 using Models.Faire;
-using System.Collections.Generic;
 
 namespace Helpers
 {
@@ -10,9 +9,9 @@ namespace Helpers
         {
             var newOrder = new NewOrder
             {
-                
+
                 DateAdd = DateTimeOffset.Parse(order.CreatedAt).ToUnixTimeSeconds().ToString(),
-                
+
                 DeliveryAddress = order.Address.Address1 + order.Address.Address2,
                 Phone = order.Address.PhoneNumber,
                 DeliveryFullname = order.Address.Name,
@@ -22,7 +21,7 @@ namespace Helpers
                 DeliveryCity = order.Address.City,
                 DeliveryState = order.Address.State,
                 DeliveryCountryCode = order.Address.CountryCode,
-                
+
                 InvoiceAddress = order.Address.Address1 + order.Address.Address2,
                 InvoiceCity = order.Address.City,
                 InvoiceState = order.Address.State,

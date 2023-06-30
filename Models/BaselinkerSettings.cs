@@ -1,7 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using Newtonsoft.Json;
-
-namespace Models;
+﻿namespace Models;
 public record BaselinkerSettings
 {
     public string XBLToken { get; set; }

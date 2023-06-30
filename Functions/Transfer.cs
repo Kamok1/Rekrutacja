@@ -13,7 +13,7 @@ public class Transfer
     private readonly IFaireService _faireService;
     private readonly IStorageService _storageService;
     private readonly BaselinkerSettings _baselinkerSettings;
-    public Transfer(ILoggerFactory loggerFactory, IBaselinkerService baselinkerService,  
+    public Transfer(ILoggerFactory loggerFactory, IBaselinkerService baselinkerService,
         IFaireService faireService, IStorageService storageService, BaselinkerSettings baselinkerSettings)
     {
         _logger = loggerFactory.CreateLogger<Transfer>();
@@ -45,13 +45,13 @@ public class Transfer
     }
     private async Task DoWorkAsync()
     {
-        if(_storageService.Exists("lastUpdatedDate") == false)
+        if (_storageService.Exists("lastUpdatedDate") == false)
             _storageService.Set("lastUpdatedDate", DateTimeOffset.MinValue);
 
-        var orders = await _faireService.GetOrdersAsync(50,1,
+        var orders = await _faireService.GetOrdersAsync(50, 1,
             _storageService.Get<DateTimeOffset>("lastUpdatedDate"));
 
-        _storageService.Set("lastUpdatedDate",  DateTimeOffset.Parse(orders.Last().UpdatedAt));
+        _storageService.Set("lastUpdatedDate", DateTimeOffset.Parse(orders.Last().UpdatedAt));
 
         await RemoveOrdersThatAlreadyExistsAsync(orders);
 

@@ -1,6 +1,4 @@
-﻿using System.Net;
-using System.Text.Json.Serialization;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Models.Faire;
 
