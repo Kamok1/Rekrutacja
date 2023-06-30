@@ -31,7 +31,7 @@ public class Transfer
     /// <param name="info">Additional information or parameters for the method.</param>
 
     [Function("Transfer")]
-    public async Task Run([TimerTrigger("0 */1 * * * *")] string info)
+    public async Task Run([TimerTrigger("0 */10 * * * *")] string info)
     {
         try
         {
@@ -86,20 +86,17 @@ public class Transfer
             .Where(order => order.UpdatedAt != order.CreatedAt)
             .OrderBy(order => order.CreatedAt).ToList();
         var i = 0;
-        var minDate = updatedOrders.First().CreatedAt;
         var numberOfUpdatedOrders = updatedOrders.Count;
         while (i < numberOfUpdatedOrders)
         {
             // Retrieve orders added after the minimum date
-            var BaselinkerOffers = await _baselinkerService.GetOrdersAsync(minDate);
-            var lastDate = BaselinkerOffers.Last().DateAdd;
+            var baselinkerOffers = await _baselinkerService.GetOrdersAsync(updatedOrders.First().CreatedAt);
+            var lastDate = baselinkerOffers.Last().DateAdd;
 
             // Filter updated orders within the range of minimum and last date
             var updatedOrdersInRange = updatedOrders.Where(updatedOrder =>
                 updatedOrder.CreatedAt < lastDate);
 
-            // Add one millisecond to the minimum date avoid duplicates
-            minDate = lastDate.AddMilliseconds(1);
 
             foreach (var updatedOrderInRange in updatedOrdersInRange)
             {
@@ -107,7 +104,7 @@ public class Transfer
                 updatedOrders.Remove(updatedOrderInRange);
 
                 // Check if the updated order already exists in the Baselinker's System
-                if (BaselinkerOffers.Any(addedOrder => addedOrder.ExtraField1 == updatedOrderInRange.Id))
+                if (baselinkerOffers.Any(addedOrder => addedOrder.ExtraField1 == updatedOrderInRange.Id))
                     orders.Remove(updatedOrderInRange);
                 i++;
             }
