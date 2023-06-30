@@ -1,4 +1,4 @@
-﻿using Models.Baselinker;
+﻿using Models.Baselinker.Request;
 using Models.Faire;
 using System.Collections.Generic;
 
@@ -10,8 +10,9 @@ namespace Helpers
         {
             var newOrder = new NewOrder
             {
+                
                 DateAdd = DateTimeOffset.Parse(order.CreatedAt).ToUnixTimeSeconds().ToString(),
-
+                
                 DeliveryAddress = order.Address.Address1 + order.Address.Address2,
                 Phone = order.Address.PhoneNumber,
                 DeliveryFullname = order.Address.Name,

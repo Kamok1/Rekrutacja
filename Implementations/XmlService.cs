@@ -3,11 +3,11 @@ using System.Xml.Serialization;
 
 namespace Implementations;
 
-public class StorageService : IStorageService
+public class XmlService : IStorageService
 {
     private readonly string _mainFolder = Path.Combine( Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "transfer");
 
-    public StorageService()
+    public XmlService()
     {
         Directory.CreateDirectory(_mainFolder);
     }
@@ -41,7 +41,7 @@ public class StorageService : IStorageService
         return Path.Combine(_mainFolder, fileName);
     }
 
-    private string SerializeToXml<T>(T data)
+    private static string SerializeToXml<T>(T data)
     {
         var serializer = new XmlSerializer(typeof(T));
         using var writer = new StringWriter();

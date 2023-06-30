@@ -1,12 +1,12 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace Models.Baselinker;
+namespace Models.Baselinker.Request;
 
 public record NewOrder
 {
     [JsonProperty("order_status_id")]
-    public string OrderStatusId { get; set; }
+    public int OrderStatusId { get; set; }
 
     [JsonProperty("date_add")]
     public string DateAdd { get; set; }
@@ -15,7 +15,7 @@ public record NewOrder
     public string UserComments { get; set; }
 
     [JsonProperty("custom_source_id")]
-    public string CustomSourceId { get; set; }
+    public int CustomSourceId { get; set; }
 
     [JsonProperty("admin_comments")]
     public string AdminComments { get; set; }

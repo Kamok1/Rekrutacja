@@ -16,7 +16,7 @@ var host = new HostBuilder()
     {
         services.AddSingleton(config.GetSection("BaselinkerSettings").Get<BaselinkerSettings>()!);
         services.AddSingleton(config.GetSection("FaireSettings").Get<FaireSettings>()!);
-        services.AddSingleton<IStorageService, StorageService>();
+        services.AddSingleton<IStorageService, XmlService>();
         services.AddScoped<IBaselinkerService, BaselinkerService>();
         services.AddScoped<IFaireService, FaireService>();
     })
