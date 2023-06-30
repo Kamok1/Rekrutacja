@@ -1,7 +1,6 @@
-﻿using System.Text.Json.Serialization;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
-namespace Models.Baselinker;
+namespace Models.Baselinker.Request;
 
 public record Product
 {

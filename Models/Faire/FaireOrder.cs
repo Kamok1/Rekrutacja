@@ -1,19 +1,25 @@
-﻿using System.Net;
-using System.Text.Json.Serialization;
+﻿using System.Globalization;
 using Newtonsoft.Json;
 
 namespace Models.Faire;
 
-public record Order
+public record FaireOrder
 {
     [JsonProperty("id")]
     public string Id { get; set; }
 
     [JsonProperty("created_at")]
-    public string CreatedAt { get; set; }
+    public string CreatedAtString { get; set; }
+
+    [JsonIgnore]
+    public DateTimeOffset CreatedAt => DateTimeOffset.ParseExact(CreatedAtString, "yyyyMMdd'T'HHmmss.fff'Z'", CultureInfo.InvariantCulture);
 
     [JsonProperty("updated_at")]
-    public string UpdatedAt { get; set; }
+    public string UpdatedAtString { get; set; }
+
+    [JsonIgnore]
+    public DateTimeOffset UpdatedAt => DateTimeOffset.ParseExact(UpdatedAtString, "yyyyMMdd'T'HHmmss.fff'Z'", CultureInfo.InvariantCulture);
+
 
     [JsonProperty("state")]
     public string State { get; set; }

@@ -1,16 +1,16 @@
-﻿using Models.Baselinker;
+﻿using Models.Baselinker.Request;
 using Models.Faire;
-using System.Collections.Generic;
 
 namespace Helpers
 {
     public static class Mapper
     {
-        public static NewOrder ToBaselinkerNewOrder(Order order)
+        public static NewOrder ToBaselinkerNewOrder(FaireOrder order)
         {
             var newOrder = new NewOrder
             {
-                DateAdd = DateTimeOffset.Parse(order.CreatedAt).ToUnixTimeSeconds().ToString(),
+
+                DateAdd = order.CreatedAt.ToUnixTimeSeconds().ToString(),
 
                 DeliveryAddress = order.Address.Address1 + order.Address.Address2,
                 Phone = order.Address.PhoneNumber,
@@ -21,7 +21,7 @@ namespace Helpers
                 DeliveryCity = order.Address.City,
                 DeliveryState = order.Address.State,
                 DeliveryCountryCode = order.Address.CountryCode,
-                
+
                 InvoiceAddress = order.Address.Address1 + order.Address.Address2,
                 InvoiceCity = order.Address.City,
                 InvoiceState = order.Address.State,
