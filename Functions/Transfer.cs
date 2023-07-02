@@ -13,15 +13,15 @@ public class Transfer
     private readonly IBaselinkerService _baselinkerService;
     private readonly IFaireService _faireService;
     private readonly IStorageService _storageService;
-    private readonly BaselinkerSettings _baselinkerSettings;
+    private readonly DefaultValues _defaultValues;
     public Transfer(ILoggerFactory loggerFactory, IBaselinkerService baselinkerService,
-        IFaireService faireService, IStorageService storageService, BaselinkerSettings baselinkerSettings)
+        IFaireService faireService, IStorageService storageService, DefaultValues defaultValues)
     {
         _logger = loggerFactory.CreateLogger<Transfer>();
         _baselinkerService = baselinkerService;
         _faireService = faireService;
         _storageService = storageService;
-        _baselinkerSettings = baselinkerSettings;
+        _defaultValues = defaultValues;
     }
 
     /// <summary>
@@ -31,7 +31,7 @@ public class Transfer
     /// <param name="info">Additional information or parameters for the method.</param>
 
     [Function("Transfer")]
-    public async Task Run([TimerTrigger("0 */10 * * * *")] string info)
+    public async Task Run([TimerTrigger("0 */1 * * * *")] string info)
     {
         try
         {
@@ -49,67 +49,63 @@ public class Transfer
         if (_storageService.Exists("lastUpdatedDate") == false)
             _storageService.Set("lastUpdatedDate", DateTimeOffset.MinValue);
 
-        var orders = await _faireService.GetOrdersAsync(50, 1,
+        var faireOrders = await _faireService.GetOrdersAsync(50, 1,
             _storageService.Get<DateTimeOffset>("lastUpdatedDate"));
 
-        _storageService.Set("lastUpdatedDate", orders.Last().UpdatedAt);
+        _storageService.Set("lastUpdatedDate", faireOrders.Last().UpdatedAt);
         _logger.LogInformation("Retrieved orders from Faire and updated the last updated date in the storage service.");
 
 
-        await RemoveOrdersThatAlreadyExistsAsync(orders);
+        //await RemoveOrdersThatAlreadyExistsAsync(faireOrders);
         _logger.LogInformation("Removed existing orders.");
 
-        var newOrders = orders.Select(order =>
+        var newBaselinkerOrders = faireOrders.Select(order =>
         {
             var newOrder = Mapper.ToBaselinkerNewOrder(order);
-            newOrder.OrderStatusId = _baselinkerSettings.DefaultStatusId;
-            newOrder.CustomSourceId = _baselinkerSettings.DefaultSourceId;
+            newOrder.OrderStatusId = _defaultValues.StatusId;
+            newOrder.CustomSourceId = _defaultValues.SourceId;
             newOrder.ExtraField1 = order.Id;
             return newOrder;
         }).ToList();
 
-        newOrders.ForEach(newOrder => _baselinkerService.AddOrderAsync(newOrder));
+        newBaselinkerOrders.ForEach(newOrder => _baselinkerService.AddOrderAsync(newOrder));
         _logger.LogInformation("Added new orders to the Baselinker system.");
     }
 
     /// <summary>
-    /// Select orders where the create date is different from the update date.
-    /// Then, retrieves orders that was added at the same time, or later.
-    /// If any field contains an ID from the Faire system that matches order's Id,
-    /// remove that order from the list to prevent uploading it multiple times.
+    /// Removes orders that are already in Baselinker's system.
     /// </summary>
-    /// <param name="orders"></param>
-    /// <returns></returns>
-    private async Task RemoveOrdersThatAlreadyExistsAsync(ICollection<FaireOrder> orders)
+    /// <param name="faireOrders">The collection of Faire orders to process.</param>
+    private async Task RemoveOrdersThatAlreadyExistsAsync(ICollection<FaireOrder> faireOrders)
     {
-        var updatedOrders = orders
+        // Select orders where the create date is different from the update date
+        var updatedOrders = faireOrders
             .Where(order => order.UpdatedAt != order.CreatedAt)
-            .OrderBy(order => order.CreatedAt).ToList();
-        var i = 0;
-        var numberOfUpdatedOrders = updatedOrders.Count;
-        while (i < numberOfUpdatedOrders)
+            .OrderBy(order => order.CreatedAt)
+            .ToList();
+
+        while (updatedOrders.Any())
         {
-            // Retrieve orders added after the minimum date
-            var baselinkerOffers = await _baselinkerService.GetOrdersAsync(updatedOrders.First().CreatedAt);
-            var lastDate = baselinkerOffers.Last().DateAdd;
+            //Retrieve orders added after the minimum date of the remaining updated orders
+            var baselinkerOffers = await _baselinkerService.GetOrdersAsync(updatedOrders.First().CreatedAt,
+                _defaultValues.StatusId, _defaultValues.SourceId);
 
-            // Filter updated orders within the range of minimum and last date
+            // Filter the updated orders to match the range of fetched offers from Baselinker
             var updatedOrdersInRange = updatedOrders.Where(updatedOrder =>
-                updatedOrder.CreatedAt < lastDate);
-
+                updatedOrder.CreatedAt < baselinkerOffers.Last().DateAdd);
 
             foreach (var updatedOrderInRange in updatedOrdersInRange)
             {
-                // Remove the processed updated order from the list
+                //Remove the processed updated order from the list
                 updatedOrders.Remove(updatedOrderInRange);
 
-                // Check if the updated order already exists in the Baselinker's System
-                if (baselinkerOffers.Any(addedOrder => addedOrder.ExtraField1 == updatedOrderInRange.Id))
-                    orders.Remove(updatedOrderInRange);
-                i++;
+                //Check if the updated order already exists in the Baselinker system
+                if (baselinkerOffers.Any(baselinkerOffer => baselinkerOffer.ExtraField1 == updatedOrderInRange.Id))
+                    faireOrders.Remove(updatedOrderInRange);
             }
         }
     }
+
     private void ErrorHandler(Exception exception)
     {
         _logger.LogError(exception.Message);

@@ -37,12 +37,7 @@ public class BaselinkerService : IBaselinkerService
         if(status == "ERROR")
             throw new Exception("Error occurred while adding orders!");
     }
-
-    public async Task<List<BaselinkerOrder>?> GetOrdersAsync(DateTimeOffset dateFrom)
-    {
-        return await GetOrdersAsync(dateFrom, _settings.DefaultStatusId, _settings.DefaultSourceId);
-    }
-    private async Task<List<BaselinkerOrder>?> GetOrdersAsync(DateTimeOffset dateFrom, int statusId, int customSourceId)
+    public async Task<List<BaselinkerOrder>> GetOrdersAsync(DateTimeOffset dateFrom, int statusId, int customSourceId)
     {
         List<BaselinkerOrder> orders = new();
         var parametersDict = new Dictionary<string, object>
