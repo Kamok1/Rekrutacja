@@ -31,7 +31,7 @@ public class Transfer
     /// <param name="info">Additional information or parameters for the method.</param>
 
     [Function("Transfer")]
-    public async Task Run([TimerTrigger("0 */1 * * * *")] string info)
+    public async Task Run([TimerTrigger("0 */10 * * * *")] string info)
     {
         try
         {
