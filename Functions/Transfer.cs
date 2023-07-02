@@ -27,6 +27,7 @@ public class Transfer
     /// <summary>
     /// Transfers data from Faire to Baselinker.
     /// Runs every 10 minutes, transfer 50 records.
+    /// It starts with the orders that have been updated the earliest
     /// </summary>
     /// <param name="info">Additional information or parameters for the method.</param>
 
@@ -53,10 +54,10 @@ public class Transfer
             _storageService.Get<DateTimeOffset>("lastUpdatedDate"));
 
         _storageService.Set("lastUpdatedDate", faireOrders.Last().UpdatedAt);
-        _logger.LogInformation("Retrieved orders from Faire and updated the last updated date in the storage service.");
+        _logger.LogInformation("Retrieved orders from Faire and updated the last updated date in the storage.");
 
 
-        //await RemoveOrdersThatAlreadyExistsAsync(faireOrders);
+        await RemoveOrdersThatAlreadyExistsAsync(faireOrders);
         _logger.LogInformation("Removed existing orders.");
 
         var newBaselinkerOrders = faireOrders.Select(order =>
@@ -90,16 +91,17 @@ public class Transfer
             var baselinkerOffers = await _baselinkerService.GetOrdersAsync(updatedOrders.First().CreatedAt,
                 _defaultValues.StatusId, _defaultValues.SourceId);
 
-            // Filter the updated orders to match the range of fetched offers from Baselinker
+            //Filter the updated orders to match the range of fetched offers from Baselinker
+            //According to documentation, baselinker should return orders sorted by date_from
             var updatedOrdersInRange = updatedOrders.Where(updatedOrder =>
-                updatedOrder.CreatedAt < baselinkerOffers.Last().DateAdd);
+                updatedOrder.CreatedAt <= baselinkerOffers.Last().DateAdd);
 
             foreach (var updatedOrderInRange in updatedOrdersInRange)
             {
-                //Remove the processed updated order from the list
+                //Remove the processed order from the list
                 updatedOrders.Remove(updatedOrderInRange);
 
-                //Check if the updated order already exists in the Baselinker system
+                //Check if the order already exists in the Baselinker system
                 if (baselinkerOffers.Any(baselinkerOffer => baselinkerOffer.ExtraField1 == updatedOrderInRange.Id))
                     faireOrders.Remove(updatedOrderInRange);
             }
@@ -109,5 +111,6 @@ public class Transfer
     private void ErrorHandler(Exception exception)
     {
         _logger.LogError(exception.Message);
+        throw exception;
     }
 }

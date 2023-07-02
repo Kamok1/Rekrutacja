@@ -10,13 +10,11 @@ namespace Implementations;
 public class BaselinkerService : IBaselinkerService
 {
     private readonly RestClient _client;
-    private readonly BaselinkerSettings _settings;
     public BaselinkerService(BaselinkerSettings settings)
     {
-        _settings = settings;
-        var options = new RestClientOptions(_settings.BaseUrl);
+        var options = new RestClientOptions(settings.BaseUrl);
         _client = new RestClient(options);
-        _client.AddDefaultHeader("X-BLToken", _settings.XBLToken);
+        _client.AddDefaultHeader("X-BLToken", settings.XBLToken);
     }
     public async Task AddOrderAsync(NewOrder newOrder)
     {
@@ -56,7 +54,7 @@ public class BaselinkerService : IBaselinkerService
         var request = new RestRequest("", Method.Post);
         request.AddParameter("application/x-www-form-urlencoded", Helpers.Helpers.QueryString(apiParams), ParameterType.RequestBody);
 
-        var response = await _client.ExecuteAsync<List<OrdersResponse>>(request); // Specify the response type as List<Order>
+        var response = await _client.ExecuteAsync<List<OrdersResponse>>(request);
         if (response.IsSuccessful == false || response.Content == null)
             throw new Exception("Failed to retrieve orders from baselinker!");
 
@@ -64,6 +62,6 @@ public class BaselinkerService : IBaselinkerService
         if (collection != null)
             orders.AddRange(collection);
 
-        return orders; // Return the list of orders
+        return orders;
     }
 }
